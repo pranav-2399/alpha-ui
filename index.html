@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Monitoring Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="ChatWidget.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.0"></script>
+    
+ 
+
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="header-title"> Hermes <span style="font-size: 1rem; font-weight: 400; color: #90caf9; margin-left: 0.75rem; vertical-align: middle;">powered by GenAI</span></h1>
+                    <nav class="breadcrumb" id="breadcrumb">
+                        <span class="breadcrumb-item active">Dashboard</span>
+                    </nav>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn--outline" id="refreshBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64l1.27 1.27m0 9.2l-1.27 1.27A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button id="alertBtn" class="alert-btn" style="position: relative; margin-left: 0.5rem;">
+                        <span class="alert-icon">🚨</span>
+                        <span id="alertBadge" class="alert-badge hidden" style="position: absolute; top: -8px; right: -8px; background: #f44336; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: bold;">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Alert Panel -->
+        <div id="alertPanel" class="alert-panel hidden" style="position: fixed; top: 60px; right: 20px; width: 400px; max-height: 500px; background: #1a1d23; border: 1px solid #343a40; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; overflow-y: auto;">
+            <div class="alert-panel-header" style="padding: 1rem; border-bottom: 1px solid #343a40; display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0; color: #ffffff;">🚨 Critical Alerts</h4>
+                <button id="closeAlertPanelBtn" style="background: none; border: none; color: #999; font-size: 1.2rem; cursor: pointer;">×</button>
+            </div>
+            <div id="alertList" class="alert-list" style="padding: 1rem;">
+                <!-- Alerts will be populated here -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="time-filter-group" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+                  <button class="time-filter-btn active" data-range="2w" style="background: #6366f1; color: #fff; border: 1px solid #6366f1; border-radius: 12px; box-shadow: 0 4px 16px rgba(99,102,241,0.12); font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">Last 2 Weeks</button>
+                  <button class="time-filter-btn" data-range="all" style="background: #2d2d2d; color: #fff; border: 1px solid #404040; border-radius: 12px; font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">All Time</button>
+                  <button class="time-filter-btn" data-range="month" style="background: #2d2d2d; color: #fff; border: 1px solid #404040; border-radius: 12px; font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">Monthly</button>
+                  <button class="time-filter-btn" data-range="year" style="background: #2d2d2d; color: #fff; border: 1px solid #404040; border-radius: 12px; font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">Yearly</button>
+                </div>
+            <!-- Dashboard View -->
+            <div class="view" id="dashboardView">
+                <div class="dashboard-header">
+                    <h2>Project Overview</h2>
+                    <div class="dashboard-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalProjects">0</span>
+                            <span class="stat-label">Total Projects</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="activeBuilds">0</span>
+                            <span class="stat-label">Active Builds</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="successRate">0%</span>
+                            <span class="stat-label">Success Rate</span>
+                        </div>
+                        <div class="stat-item">
+    <span class="stat-value" id="llmcoveragerate">100%</span>
+    <span class="stat-label">LLM Analysis Coverage</span>
+</div>
+                    </div>
+                </div>
+                
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- Project cards will be populated here -->
+                </div>
+            </div>
+            <!-- Project Detail View -->
+            <div class="view hidden" id="projectView">
+                <div class="project-header">
+                    <h2 id="projectTitle">Project Details</h2>
+                    <div class="project-info">
+                        <div class="status-badge" id="projectStatus"></div>
+                        <span class="success-rate" id="projectSuccessRate"></span>
+                    </div>
+                </div>
+                <div class="tabs">
+                    <button class="tab-btn active" data-env="dev">Development</button>
+                    <button class="tab-btn" data-env="qa">QA</button>
+                    <button class="tab-btn" data-env="stage">Staging</button>
+                    <button class="tab-btn" data-env="production">Production</button>
+                </div>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label class="form-label">Server</label>
+                        <select class="form-control" id="serverFilter">
+                            <option value="">All Servers</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="analysis-section">
+                    <h3>Analysis of CI/CD Logs</h3>
+                    <div class="analysis-grid" id="analysisGrid">
+                        <!-- Analysis cards will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="loading hidden" id="loadingState">
+                <div class="loading-spinner"></div>
+                <p>Loading...</p>
+            </div>
+            <div class="error-state hidden" id="errorState">
+                <div class="error-icon">⚠️</div>
+                <h3>Something went wrong</h3>
+                <p id="errorMessage">Unable to load data. Please try again.</p>
+                <button class="btn btn--primary" onclick="location.reload()">Retry</button>
+            </div>
+        </main>
+<!--         <div class="chatbot-widget">
+            <button class="chatbot-toggle" id="chatbotToggle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+            </button>
+        </div> -->
+        <div class="modal hidden" id="chatbotModal">
+            <div class="modal-content chatbot-modal">
+                <div class="modal-header">
+                    <h3>CI/CD Assistant</h3>
+                    <button class="modal-close" id="closeChatbot">×</button>
+                </div>
+                <div class="chatbot-messages" id="chatMessages">
+                    <div class="chatbot-message bot">
+                        <div class="chatbot-bubble">
+                            Hi! I'm your CI/CD assistant. Ask me about pipeline issues, deployment problems, or troubleshooting steps.
+                        </div>
+                    </div>
+                </div>
+                <div class="chatbot-input">
+                    <input 
+                        type="text" 
+                        placeholder="Ask about CI/CD issues..." 
+                        class="form-control" 
+                        id="chatInput"
+                    >
+                    <button class="btn btn--primary" id="sendMessage">Send</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop hidden" id="modalBackdrop"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="app.js"></script>
+    <div id="chatbot-root"></div>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="main.52943a9f.js"></script>
+</body>
+</html>
