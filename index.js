@@ -6,8 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const ELASTICSEARCH_URL = 'https://a705a31d6c434d5d9b8801b99d0ef7f7.us-central1.gcp.cloud.es.io/cicd_analysis/_search';
-const AUTH_HEADER = 'Apikey SEtWQlVKY0JRLUE2QldTNnB3c0U6TXJ6a1dKZ0xIQ01fTndYNWtLRVhhdw==';
+const ELASTICSEARCH_URL = 'https://a774a75424564c46a6264388ef74dcd6.us-central1.gcp.cloud.es.io/cicd_analysis/_search';
+const AUTH_HEADER = 'Apikey bFBtMm1KY0JZeEpjNHpvYjVySkM6eVE3bUlNTWJqNjhvU1ZIWjBGSE9QUQ==';
 
 // Helper function to make Elasticsearch requests
 async function makeESRequest(query) {
@@ -151,19 +151,29 @@ function extractResolutionTime(text) {
 // Get logs with optional filtering
 app.get('/api/logs', async (req, res) => {
   const { project, tool, environment, server, severity } = req.query;
+  console.log("Received log request with filters:", { project, tool, environment, server, severity });
   let must = [];
   if (project) must.push({ match: { project } });
   if (tool) must.push({ match: { tool } });
   if (environment) must.push({ match: { environment } });
   if (server) must.push({ match: { server } });
-  if (severity) must.push({ match: { severity_level: severity } });
+  if (severity){ 
+    must.push({ 
+      wildcard: {
+        severity_level: {
+          value: `*${severity.toLowerCase()}*`,
+          case_insensitive: true
+        }
+      }
+     });
+  }
 
   try {
-    const response = await fetch('https://a705a31d6c434d5d9b8801b99d0ef7f7.us-central1.gcp.cloud.es.io/cicd_analysis/_search', {
+    const response = await fetch(ELASTICSEARCH_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Apikey SEtWQlVKY0JRLUE2QldTNnB3c0U6TXJ6a1dKZ0xIQ01fTndYNWtLRVhhdw=='
+        'Authorization': AUTH_HEADER
       },
       body: JSON.stringify({
         size: 1000,
@@ -222,6 +232,7 @@ app.get('/api/logs', async (req, res) => {
       };
       return enrichLogWithMetrics(log);
     });
+    console.log('Logs fetched:', logs)
     res.json(logs);
   } catch (err) {
     res.status(500).json({ error: err.message });

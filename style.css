@@ -1455,3 +1455,33 @@ body {
   border-color: #6366f1;
 }
 
+.metric-tooltip {
+  display: inline-block;
+}
+
+.metric-tooltip .tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 220px;
+  background: #23272e;
+  color: #fff;
+  text-align: left;
+  border-radius: 8px;
+  padding: 10px 14px;
+  position: absolute;
+  z-index: 20;
+  top: 36px;
+  right: 0;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  transition: opacity 0.18s cubic-bezier(0.16,1,0.3,1), visibility 0.18s;
+  pointer-events: none;
+}
+
+.metric-tooltip:hover .tooltip-text,
+.metric-tooltip:focus-within .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
