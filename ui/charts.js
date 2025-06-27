@@ -1,8 +1,12 @@
-import { currentTimeGranularity } from "../state/state.js";
 import { 
-    getLogType, extractBuildDuration, extractSonarBugs, extractSonarVulns, extractSonarCodeSmells, extractTestCoverage, parseDurationString
+    currentTimeGranularity 
+} from "../state/state.js";
+import { 
+    extractSeverityLevel 
+} from "../utils/filters.js";
+import { 
+    getLogType, extractSonarBugs, extractSonarVulns, extractSonarCodeSmells, extractTestCoverage, parseDurationString
 } from "../utils/metrics.js";
-import { extractSeverityLevel } from "../utils/filters.js";
 
 let chartInstances = {
     successTrend: null,
@@ -96,7 +100,7 @@ export function renderMetricsCharts(metrics, filteredLogs) {
     }
 }
 
-export function renderSuccessTrendChart(metrics, filteredLogs) {
+function renderSuccessTrendChart(metrics, filteredLogs) {
     console.log('Total timeline entries:', metrics.timeline.length);
     console.log("total timeline logs:", metrics)
     
@@ -116,7 +120,11 @@ export function renderSuccessTrendChart(metrics, filteredLogs) {
     // Check if we have deployment data
     if (deploymentTimeline.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Deployment Logs Available</h4>
                 <p>No deployment operations found for success trend analysis</p>
             </div>
@@ -169,7 +177,11 @@ export function renderSuccessTrendChart(metrics, filteredLogs) {
     // Check if we have any valid data points
     if (timelineData.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Valid Data</h4>
                 <p>Unable to parse timestamp data for chart</p>
             </div>
@@ -280,7 +292,7 @@ export function renderSuccessTrendChart(metrics, filteredLogs) {
     });
 }
 
-export function renderLogTypeChart(metrics) {
+function renderLogTypeChart(metrics) {
     const ctx = document.getElementById('logTypeChart');
     if (!ctx) return;
     
@@ -320,7 +332,7 @@ export function renderLogTypeChart(metrics) {
     });
 }
 
-export function renderErrorTimelineChart(metrics) {
+function renderErrorTimelineChart(metrics) {
     const ctx = document.getElementById('errorTimelineChart');
     if (!ctx) return;
     
@@ -352,7 +364,11 @@ export function renderErrorTimelineChart(metrics) {
     const totalErrors = Object.values(timeBasedErrors).reduce((sum, count) => sum + count, 0);
     if (totalErrors === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Error Data Available</h4>
                 <p>No errors detected in the selected time period</p>
             </div>
@@ -428,7 +444,7 @@ export function renderErrorTimelineChart(metrics) {
     });
 }
 
-export function renderQualityMetricsChart(metrics) {
+function renderQualityMetricsChart(metrics) {
     const ctx = document.getElementById('qualityMetricsChart');
     if (!ctx) return;
     
@@ -480,7 +496,7 @@ export function renderQualityMetricsChart(metrics) {
     });
 }
 
-export function renderBuildDurationChart(metrics, filteredLogs) {
+function renderBuildDurationChart(metrics, filteredLogs) {
     const ctx = document.getElementById('buildDurationChart');
     if (!ctx) return;
     
@@ -494,7 +510,11 @@ export function renderBuildDurationChart(metrics, filteredLogs) {
     
     if (buildLogs.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Build Duration Data</h4>
                 <p>No build logs with duration information found</p>
             </div>
@@ -520,7 +540,11 @@ export function renderBuildDurationChart(metrics, filteredLogs) {
     
     if (durationData.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Duration Data Available</h4>
                 <p>Build logs don't contain duration information</p>
             </div>
@@ -584,7 +608,7 @@ export function renderBuildDurationChart(metrics, filteredLogs) {
     });
 }
 
-export function renderTestCoverageChart(metrics, filteredLogs) {
+function renderTestCoverageChart(metrics, filteredLogs) {
     const ctx = document.getElementById('testCoverageChart');
     if (!ctx) return;
     
@@ -598,7 +622,11 @@ export function renderTestCoverageChart(metrics, filteredLogs) {
     console.log("Test logs:", testLogs);
     if (testLogs.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Test Coverage Data</h4>
                 <p>No test logs found</p>
             </div>
@@ -625,7 +653,11 @@ export function renderTestCoverageChart(metrics, filteredLogs) {
     console.log("Coverage data:", coverageData);
     if (coverageData.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Coverage Data Available</h4>
                 <p>Test logs don't contain coverage information</p>
             </div>
@@ -679,7 +711,7 @@ export function renderTestCoverageChart(metrics, filteredLogs) {
     });
 }
 
-export function renderCodeQualityChart(metrics, filteredLogs) {
+function renderCodeQualityChart(metrics, filteredLogs) {
     const ctx = document.getElementById('codeQualityChart');
     if (!ctx) return;
     
@@ -693,7 +725,11 @@ export function renderCodeQualityChart(metrics, filteredLogs) {
     
     if (sonarLogs.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Code Quality Data</h4>
                 <p>No SonarQube logs found</p>
             </div>
@@ -769,7 +805,7 @@ export function renderCodeQualityChart(metrics, filteredLogs) {
     });
 }
 
-export function renderDeploymentFrequencyChart(metrics, filteredLogs) {
+function renderDeploymentFrequencyChart(metrics, filteredLogs) {
     const ctx = document.getElementById('deploymentFrequencyChart');
     if (!ctx) return;
     
@@ -783,7 +819,11 @@ export function renderDeploymentFrequencyChart(metrics, filteredLogs) {
     
     if (deploymentLogs.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No Deployment Data</h4>
                 <p>No deployment logs found</p>
             </div>
@@ -839,7 +879,7 @@ export function renderDeploymentFrequencyChart(metrics, filteredLogs) {
     });
 }
 
-export function renderMTTRChart(metrics, filteredLogs) {
+function renderMTTRChart(metrics, filteredLogs) {
     const ctx = document.getElementById('mttrChart');
     if (!ctx) return;
     
@@ -856,7 +896,11 @@ export function renderMTTRChart(metrics, filteredLogs) {
     
     if (errorLogs.length === 0) {
         ctx.parentElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
                 <h4>No MTTR Data</h4>
                 <p>No high/critical severity logs found for MTTR calculation</p>
             </div>
@@ -941,7 +985,7 @@ export function renderMTTRChart(metrics, filteredLogs) {
     });
 }
 
-export function renderSeverityTimelineChart(metrics, filteredLogs) {
+function renderSeverityTimelineChart(metrics, filteredLogs) {
     const ctx = document.getElementById('severityTimelineChart');
     if (!ctx) return;
     
@@ -1026,29 +1070,7 @@ export function renderSeverityTimelineChart(metrics, filteredLogs) {
     });
 }
 
-export function changeTimeGranularity(granularity) {
-    currentTimeGranularity = granularity;
-    
-    // Update button states
-    document.querySelectorAll('.granularity-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.background = '#4a5568';
-    });
-    
-    const activeBtn = document.querySelector(`[data-granularity="${granularity}"]`);
-    if (activeBtn) {
-        activeBtn.classList.add('active');
-        activeBtn.style.background = '#6366f1';
-    }
-    
-    // Refresh charts with new granularity
-    if (window.currentLogs) {
-        const metrics = processMetricsFromLogs(window.currentLogs);
-        renderMetricsCharts(metrics, window.currentLogs);
-    }
-}
-
-export function createTimeKey(timestamp, granularity) {
+function createTimeKey(timestamp, granularity) {
     const d = new Date(timestamp);
     if (isNaN(d.getTime())) return null;
     
@@ -1074,7 +1096,7 @@ export function createTimeKey(timestamp, granularity) {
     }
 }
 
-export function formatTimeLabel(timeKey, granularity) {
+function formatTimeLabel(timeKey, granularity) {
     switch (granularity) {
         case 'hour':
             const [datePart, timePart] = timeKey.split(' ');

@@ -1,38 +1,6 @@
-import { calculateLLMCoverage } from "../utils/metrics.js";
 import { analysisData } from "../state/state.js";
-import { getLogType } from "../utils/metrics.js";
-import { parseDurationString } from "../utils/metrics.js";
-
-function getGradientColor(value, min, max) {
-    // Returns [mainColor, accentColor] for use in linear-gradient
-    if (isNaN(value)) return ['#6c757d', '#495057']; // fallback gray
-
-    let t = (value - min) / (max - min);
-    t = Math.max(0, Math.min(1, t));
-
-    let r, g, b;
-    if (t < 0.5) {
-        // Green to yellow
-        r = Math.round(40 + (255 - 40) * (t * 2));
-        g = Math.round(167 + (193 - 167) * (t * 2));
-        b = Math.round(69 + (7 - 69) * (t * 2));
-    } else {
-        // Yellow to red
-        r = Math.round(255 + (220 - 255) * ((t - 0.5) * 2));
-        g = Math.round(193 + (53 - 193) * ((t - 0.5) * 2));
-        b = Math.round(7 + (69 - 7) * ((t - 0.5) * 2));
-    }
-    // Main color
-    const mainColor = `rgb(${r},${g},${b})`;
-    // Accent color: slightly darker (multiply by 0.85)
-    const accent = 0.85;
-    const dr = Math.round(r * accent);
-    const dg = Math.round(g * accent);
-    const db = Math.round(b * accent);
-    const accentColor = `rgb(${dr},${dg},${db})`;
-
-    return [mainColor, accentColor];
-}
+import { calculateLLMCoverage, getLogType, parseDurationString } from "../utils/metrics.js";
+import { getGradientColor, formatDuration } from '../utils/format.js';
 
 export function renderMetricCards(metrics, filteredLogs) {
     // Success Rate Card
@@ -193,9 +161,26 @@ export function renderMetricCards(metrics, filteredLogs) {
             text-align: center;
             box-shadow: 0 4px 20px ${coverageMainColor}30;
         ">
-            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">${avgCoverage}%</div>
-            <div style="font-size: 0.9rem; opacity: 0.9;">Code Coverage</div>
-            <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">Average across tests</div>
+            <div style="
+                font-size: 2.5rem; 
+                font-weight: bold; 
+                margin-bottom: 0.5rem;
+            ">
+                ${avgCoverage}%
+            </div>
+            <div style="
+                font-size: 0.9rem; 
+                opacity: 0.9;
+            ">
+                Code Coverage
+            </div>
+            <div style="
+                font-size: 0.8rem; 
+                opacity: 0.7; 
+                margin-top: 0.5rem;
+            ">
+                Average across tests
+            </div>
         </div>
     `;
     
@@ -398,14 +383,7 @@ export function renderMetricCards(metrics, filteredLogs) {
     `;
 }
 
-function formatDuration(seconds) {
-    if (isNaN(seconds) || seconds === 0) return "N/A";
-    const m = Math.floor(seconds / 60);
-    const s = Math.round(seconds % 60);
-    return `${m > 0 ? m + "m " : ""}${s}s`;
-}
-
-export function renderBusinessImpactCard(logs) {
+function renderBusinessImpactCard(logs) {
     const impactLogs = logs.filter(log => 
         log.business_impact_score !== null && 
         log.business_impact_score !== undefined && 
@@ -514,7 +492,7 @@ export function renderBusinessImpactCard(logs) {
     `;
 }
 
-export function renderConfidenceScoreCard(logs) {
+function renderConfidenceScoreCard(logs) {
     const confidenceLogs = logs.filter(log => 
         log.confidence_score !== null && 
         log.confidence_score !== undefined && 
@@ -540,9 +518,26 @@ export function renderConfidenceScoreCard(logs) {
                     height: 28px; 
                     opacity: 0.85;
                 " />
-                <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">N/A</div>
-                <div style="font-size: 0.9rem; opacity: 0.9;">Confidence Score</div>
-                <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">No data available</div>
+                <div style="
+                    font-size: 2.5rem; 
+                    font-weight: bold; 
+                    margin-bottom: 0.5rem;
+                ">
+                    N/A
+                </div>
+                <div style="
+                    font-size: 0.9rem; 
+                    opacity: 0.9;
+                ">
+                    Confidence Score
+                </div>
+                <div style="
+                    font-size: 0.8rem; 
+                    opacity: 0.7; 
+                    margin-top: 0.5rem;
+                ">
+                    No data available
+                </div>
             </div>
         `;
     }
@@ -603,7 +598,7 @@ export function renderConfidenceScoreCard(logs) {
     `;
 }
 
-export function renderTechnicalComplexityCard(logs) {
+function renderTechnicalComplexityCard(logs) {
     const complexityLogs = logs.filter(log =>
         log.technical_complexity !== null &&
         log.technical_complexity !== undefined &&
@@ -722,7 +717,7 @@ export function renderTechnicalComplexityCard(logs) {
     `;
 }
 
-export function renderSecurityMetricsCard(logs) {
+function renderSecurityMetricsCard(logs) {
     const securityLogs = logs.filter(log => 
         log.vulnerabilities !== null && 
         log.vulnerabilities !== undefined && 
@@ -782,16 +777,31 @@ export function renderSecurityMetricsCard(logs) {
             text-align: center;
             box-shadow: 0 4px 20px ${cardColor}30;
         ">
-            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">${avgVulns}</div>
-            <div style="font-size: 0.9rem; opacity: 0.9;">Avg Vulnerabilities</div>
-            <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">
+            <div style="
+                font-size: 2.5rem; 
+                font-weight: bold; 
+                margin-bottom: 0.5rem;
+            ">
+                ${avgVulns}
+            </div>
+            <div style="
+                font-size: 0.9rem; 
+                opacity: 0.9;
+            ">
+                Average Vulnerabilities
+            </div>
+            <div style="
+                font-size: 0.8rem; 
+                opacity: 0.7; 
+                margin-top: 0.5rem;
+            ">
                 Quality Gate: ${passRate}% passed
             </div>
         </div>
     `;
 }
 
-export function renderTechnicalDebtCard(logs) {
+function renderTechnicalDebtCard(logs) {
     const debtLogs = logs.filter(log => 
         log.technical_debt_hours !== null && 
         log.technical_debt_hours !== undefined && 

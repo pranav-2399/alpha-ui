@@ -1,10 +1,3 @@
-import { currentLogTypeFilter } from '../state/state.js';
-
-export function getAvailableEnvironments(logs) {
-    const envs = [...new Set(logs.map(log => log.environment).filter(Boolean))];
-    return envs.sort();
-}
-
 export function getAvailableServers(logs, environment = null) {
     let filteredLogs = logs;
     if (environment) {
@@ -12,21 +5,6 @@ export function getAvailableServers(logs, environment = null) {
     }
     const servers = [...new Set(filteredLogs.map(log => log.server).filter(Boolean))];
     return servers.sort();
-}
-
-export function getAvailableSeverities(logs, environment = null, server = null) {
-    let filteredLogs = logs;
-    if (environment) {
-        filteredLogs = filteredLogs.filter(log => log.environment === environment);
-    }
-    if (server) {
-        filteredLogs = filteredLogs.filter(log => log.server === server);
-    }
-    const severities = [...new Set(filteredLogs.map(log => {
-        const severityText = log.severity_level || log.severity;
-        return extractSeverityLevel(severityText);
-    }).filter(severity => severity !== 'unknown'))];
-    return severities.sort();
 }
 
 export function filterLogs(logs, env, server, severity) {

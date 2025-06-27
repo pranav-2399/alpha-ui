@@ -1,18 +1,28 @@
 import { 
     fetchProjects, fetchEnvironments, fetchServers, fetchAnalysis 
 } from '../api/api.js';
+import { 
+    sendChatMessage 
+} from '../chatbot/chatbot.js';
 import {
-  currentView, currentProject, currentTool, setCurrentView, setCurrentProject, setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentTool, setProjects, setAnalysisData, projects, currentTimeFilter, currentLogTypeFilter,
+  currentView, currentProject, currentTool, setCurrentView, setCurrentProject, setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentTool, setProjects, setAnalysisData, projects,
   setCurrentLogTypeFilter
 } from '../state/state.js';
-import { showLoading, hideLoading, showError } from './loading.js';
-import { handleServerChange } from './filters.js';
-import { sendChatMessage } from '../chatbot/chatbot.js';
-import { buildProjectStats } from '../utils/metrics.js';
-
-import { formatToolName, formatTimestamp } from '../utils/format.js';
-import { showProjectDetail, fetchLogsForProject, renderLogAnalysis } from './project.js';
-import { getLogType } from '../utils/metrics.js';
+import { 
+    formatToolName, formatTimestamp 
+} from '../utils/format.js';
+import { 
+    buildProjectStats, getLogType 
+} from '../utils/metrics.js';
+import { 
+    handleServerChange 
+} from './filters.js';
+import { 
+    showLoading, hideLoading, showError 
+} from './loading.js';
+import { 
+    showProjectDetail, fetchLogsForProject, renderLogAnalysis 
+} from './project.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     await initializeApp();
@@ -42,7 +52,7 @@ export async function initializeApp() {
     }
 }
 
-export function renderProjectCards() {
+function renderProjectCards() {
     const grid = document.getElementById('projectsGrid');
     if (!grid) return;
     
@@ -55,7 +65,7 @@ export function renderProjectCards() {
     });
 }
 
-export function createProjectCard(project) {
+function createProjectCard(project) {
     console.log("Creating card for project:", project.name, "tool:", project.tool);
     const card = document.createElement('div');
     card.className = 'project-card';
@@ -88,13 +98,13 @@ export function createProjectCard(project) {
         </div>
         
         <div class="project-footer">
-            <small style="color: #9ca3af;">Last Build: ${formatTimestamp(project.latest_timestamp)}</small>
+            <small style="color: #9ca3af">Last Build: ${formatTimestamp(project.latest_timestamp)}</small>
         </div>
     `;    
     return card;
 }
 
-export function bindEventListeners() {
+function bindEventListeners() {
     // Refresh button
     const refreshBtn = document.getElementById('refreshBtn');
     if (refreshBtn) {
@@ -133,7 +143,7 @@ export function bindEventListeners() {
     }
 }
 
-export function bindTimeFilterEvents() {
+function bindTimeFilterEvents() {
     const timeButtons = document.querySelectorAll('.time-filter-btn');
     timeButtons.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -174,7 +184,7 @@ export function showView(viewName) {
     updateBreadcrumb();
 }
 
-export function updateBreadcrumb() {
+function updateBreadcrumb() {
     const breadcrumb = document.getElementById('breadcrumb');
     if (!breadcrumb) return;
     
@@ -189,13 +199,13 @@ export function updateBreadcrumb() {
     }
 }
 
-export function handleBreadcrumbClick(e) {
+function handleBreadcrumbClick(e) {
     if (e.target.classList.contains('breadcrumb-item') && !e.target.classList.contains('active')) {
         showDashboard();
     }
 }
 
-export function showDashboard() {
+function showDashboard() {
     // Reset filters when going back to dashboard
     setCurrentEnv('')
     setCurrentServer('');
@@ -206,9 +216,8 @@ export function showDashboard() {
     showView('dashboard');
     loadDashboardData();
 }
-window.showDashboard = showDashboard;
 
-export function loadDashboardData() {
+function loadDashboardData() {
     showLoading();
 
     // Simulate API delay
@@ -223,12 +232,12 @@ export function loadDashboardData() {
     }, 500);
 }
 
-export function renderDashboard() {
+function renderDashboard() {
     updateDashboardStats();
     renderProjectCards();
 }
 
-export function updateDashboardStats() {
+function updateDashboardStats() {
     const totalProjects = projects.length;
     const activeBuilds = projects.reduce((sum, p) => sum + p.count, 0);
     const overallSuccessRate = projects.length > 0 ? 
@@ -266,11 +275,25 @@ export function createMetricsDashboard() {
     }
     
     metricsSection.innerHTML = `
-        <div class="metrics-header" style="margin-bottom: 2rem; text-align: center;">
-            <h2 style="color: #00d4aa; font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 700;">
+        <div class="metrics-header" style="
+            margin-bottom: 2rem; 
+            text-align: center;
+        ">
+            <h2 style="
+                color: #00d4aa; 
+                font-size: 1.8rem; 
+                margin: 0 0 0.5rem 0; 
+                font-weight: 700;
+            ">
                 📊 Performance Metrics Dashboard
             </h2>
-            <p style="color: #a0aec0; margin: 0; font-size: 1rem;">Real-time insights and analytics</p>
+            <p style="
+                color: #a0aec0; 
+                margin: 0; 
+                font-size: 1rem;
+            ">
+                Real-time insights and analytics
+            </p>
         </div>
         
         <!-- Key Metrics Cards -->
@@ -300,8 +323,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Deployment Success Trend</h3>
-                <canvas id="successTrendChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Deployment Success Trend
+                </h3>
+                <canvas id="successTrendChart" style="max-height: 300px"></canvas>
             </div>
             
             <div class="chart-container" style="
@@ -310,8 +339,14 @@ export function createMetricsDashboard() {
                 padding: 1.5rem;
                 border: 1px solid rgba(255,255,255,0.1);
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Log Type Distribution</h3>
-                <canvas id="logTypeChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Log Type Distribution
+                </h3>
+                <canvas id="logTypeChart" style="max-height: 300px"></canvas>
             </div>
         </div>
         
@@ -329,8 +364,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Build Duration Trends</h3>
-                <canvas id="buildDurationChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Build Duration Trends
+                </h3>
+                <canvas id="buildDurationChart" style="max-height: 300px"></canvas>
             </div>
             
             <div class="chart-container" style="
@@ -340,8 +381,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Test Coverage Progression</h3>
-                <canvas id="testCoverageChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Test Coverage Progression
+                </h3>
+                <canvas id="testCoverageChart" style="max-height: 300px"></canvas>
             </div>
         </div>
         
@@ -358,8 +405,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Code Quality Trends</h3>
-                <canvas id="codeQualityChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Code Quality Trends
+                </h3>
+                <canvas id="codeQualityChart" style="max-height: 300px"></canvas>
             </div>
             
             <div class="chart-container" style="
@@ -369,8 +422,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Deployment Frequency</h3>
-                <canvas id="deploymentFrequencyChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Deployment Frequency
+                </h3>
+                <canvas id="deploymentFrequencyChart" style="max-height: 300px"></canvas>
             </div>
         </div>
         
@@ -386,8 +445,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Error Count Timeline</h3>
-                <canvas id="errorTimelineChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Error Count Timeline
+                </h3>
+                <canvas id="errorTimelineChart" style="max-height: 300px"></canvas>
             </div>
             
             <div class="chart-container" style="
@@ -396,8 +461,14 @@ export function createMetricsDashboard() {
                 padding: 1.5rem;
                 border: 1px solid rgba(255,255,255,0.1);
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Quality Metrics</h3>
-                <canvas id="qualityMetricsChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Quality Metrics
+                </h3>
+                <canvas id="qualityMetricsChart" style="max-height: 300px"></canvas>
             </div>
         </div>
         
@@ -415,8 +486,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">MTTR Trends</h3>
-                <canvas id="mttrChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    MTTR Trends
+                </h3>
+                <canvas id="mttrChart" style="max-height: 300px"></canvas>
             </div>
             
             <div class="chart-container" style="
@@ -426,8 +503,14 @@ export function createMetricsDashboard() {
                 border: 1px solid rgba(255,255,255,0.1);
                 height: 400px;
             ">
-                <h3 style="color: #e2e8f0; margin: 0 0 1rem 0; font-size: 1.2rem;">Severity Distribution Timeline</h3>
-                <canvas id="severityTimelineChart" style="max-height: 300px;"></canvas>
+                <h3 style="
+                    color: #e2e8f0; 
+                    margin: 0 0 1rem 0; 
+                    font-size: 1.2rem;
+                ">
+                    Severity Distribution Timeline
+                </h3>
+                <canvas id="severityTimelineChart" style="max-height: 300px"></canvas>
             </div>
         </div>
     `;
@@ -461,12 +544,12 @@ export function updateLogTypeFilterCounts(logCounts, currentLogTypeFilter = '') 
     }
 }
 
-export function getCurrentTool() {
+function getCurrentTool() {
     const projectTitle = document.getElementById('projectTitle');
     return projectTitle ? projectTitle.dataset.tool || currentTool : currentTool;
 }
 
-export function refreshData() {
+function refreshData() {
     // Reload dashboard data and hide error state if visible
     const errorState = document.getElementById('errorState');
     if (errorState) errorState.classList.add('hidden');
@@ -486,7 +569,7 @@ export function loadAnalysisData() {
     }
 }
 
-export function refreshProjectAnalysis() {
+function refreshProjectAnalysis() {
     if (!currentProject) return;
     
     // Don't re-fetch from server, just re-render with current logs
@@ -522,7 +605,7 @@ export function countLogsByType(logs) {
     return counts;
 }
 
-export function filterByLogType(logType) {
+function filterByLogType(logType) {
     setCurrentLogTypeFilter(logType)
     
     // Update button states
@@ -554,7 +637,6 @@ export function filterByLogType(logType) {
         statusText.textContent = logType ? `Showing ${logType} logs only` : 'Showing all log types';
     }
 }
-window.filterByLogType = filterByLogType;
 
 export function createLogTypeFilterPanel() {
     const filterPanel = document.createElement('div');
@@ -570,7 +652,7 @@ export function createLogTypeFilterPanel() {
     `;
     
     filterPanel.innerHTML = `
-        <div class="filter-header" style="margin-bottom: 1rem;">
+        <div class="filter-header" style="margin-bottom: 1rem">
             <h3 style="
                 color: #00d4aa; 
                 font-size: 1.2rem; 
@@ -661,3 +743,6 @@ export function createLogTypeFilterPanel() {
     
     return filterPanel;
 }
+
+window.filterByLogType = filterByLogType;
+window.showDashboard = showDashboard;

@@ -1,28 +1,30 @@
 import { 
-    setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentLogTypeFilter, setCurrentProject, setCurrentTool, currentEnv, currentServer, currentSeverity, currentLogTypeFilter
+    setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentLogTypeFilter, setCurrentProject, setCurrentTool, currentEnv, currentServer, currentSeverity, currentLogTypeFilter, API_BASE
 } from "../state/state.js";
-
-import { showView } from './dashboard.js'
-
-import { showLoading, showError } from './loading.js';
-
-import { API_BASE } from "../state/state.js";
-
+import { 
+    filterLogs, extractSeverityLevel
+} from "../utils/filters.js";
+import { 
+    getLogTypeColor, formatTimestamp
+} from "../utils/format.js";
+import { 
+    getLogType, processMetricsFromLogs
+} from "../utils/metrics.js";
+import { 
+    renderMetricsCharts 
+} from './charts.js';
+import { 
+    showView, createLogTypeFilterPanel, countLogsByType, createMetricsDashboard, updateLogTypeFilterCounts
+} from './dashboard.js';
 import {
     updateEnvironmentTabs, updateServerFilter, addSeverityStatistics, updateFilterSummary
 } from './filters.js';
-import { getLogTypeColor } from "../utils/format.js";
-import { createLogTypeFilterPanel, countLogsByType } from './dashboard.js';
-import { getLogType } from "../utils/metrics.js";
-import { updateLogTypeFilterCounts } from "./dashboard.js";
-import { filterLogs } from "../utils/filters.js";
-import { createMetricsDashboard } from "./dashboard.js";
-import { processMetricsFromLogs } from "../utils/metrics.js";
-import { renderMetricCards } from './metricsCards.js';
-import { renderMetricsCharts } from './charts.js';
-import { extractSeverityLevel } from "../utils/filters.js";
-import { formatTimestamp } from "../utils/format.js";
-
+import { 
+    showLoading, showError 
+} from './loading.js';
+import { 
+    renderMetricCards 
+} from './metricsCards.js';
 
 export function showProjectDetail(projectName, toolName) {
     // Reset filters when opening a new project
@@ -184,9 +186,6 @@ export function renderLogAnalysis(logs) {
             </div>
             <div class="analysis-details hidden">
                 <div class="detail-section">
-                    <div class="original-severity-info" style="margin-bottom: 1rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-size: 0.9rem;">
-                        <strong>Original Severity:</strong> ${severityText}
-                    </div>
                     ${marked && marked.parse ? marked.parse(details) : details}
                 </div>
             </div>

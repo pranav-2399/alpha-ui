@@ -12,7 +12,7 @@ export let currentSeverity = '';
 export let currentTool = '';
 export let currentTimeFilter = '';
 export let currentTimeGranularity = 'hour';
-export const API_BASE = 'http://localhost:4000/api';
+export const API_BASE = `http://localhost:4000/api`;
 
 // To update state from other modules, export setter functions:
 export function setCurrentView(view) { currentView = view; }

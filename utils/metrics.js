@@ -146,7 +146,7 @@ export function processMetricsFromLogs(logs) {
     return metrics;
 }
 
-export function extractTotalErrorCount(log, logType) {
+function extractTotalErrorCount(log, logType) {
     let totalErrors = log.error_count || 0;
     
     // Add type-specific error counts
@@ -182,7 +182,7 @@ export function extractTotalErrorCount(log, logType) {
     return totalErrors;
 }
 
-export function getLogTypeSpecificSuccess(log, logType) {
+function getLogTypeSpecificSuccess(log, logType) {
     const summary = log.executive_summary || log.llm_response || '';
     
     switch (logType) {
@@ -240,29 +240,19 @@ export function extractTestCoverage(summary) {
     return match ? parseFloat(match[1]) : null;
 }
 
-export function extractCodeCoverage(summary) {
+function extractCodeCoverage(summary) {
     if (!summary) return null;
     const match = summary.match(/code coverage:?\s*(\d+\.?\d*)%/i);
     return match ? parseFloat(match[1]) : null;
 }
 
-export function extractBuildSuccess(summary) {
-    if (!summary) return null;
-    return /build (success|successful)/i.test(summary);
-}
-
-export function extractBuildDuration(summary) {
+function extractBuildDuration(summary) {
     if (!summary) return null;
     const match = summary.match(/build time:?\s*([\dhms :]+)/i) || summary.match(/total time:?\s*([\dhms :]+)/i);
     return match ? match[1] : null;
 }
 
-export function extractDeploymentSuccess(summary) {
-    if (!summary) return null;
-    return /deployment completed successfully/i.test(summary);
-}
-
-export function extractDeploymentDuration(summary) {
+function extractDeploymentDuration(summary) {
     if (!summary) return null;
     const match = summary.match(/deployment duration:?\s*([\dhms :]+)/i);
     return match ? match[1] : null;
@@ -286,7 +276,7 @@ export function extractSonarCodeSmells(summary) {
     return match ? parseInt(match[1]) : null;
 }
 
-export function extractQualityGate(summary) {
+function extractQualityGate(summary) {
     if (!summary) return null;
     return !/quality gate failed/i.test(summary);
 }

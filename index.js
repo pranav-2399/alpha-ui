@@ -1,13 +1,15 @@
 import express from 'express';
 import fetch from 'node-fetch';
 import cors from 'cors';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const ELASTICSEARCH_URL = 'https://a774a75424564c46a6264388ef74dcd6.us-central1.gcp.cloud.es.io/cicd_analysis/_search';
-const AUTH_HEADER = 'Apikey bFBtMm1KY0JZeEpjNHpvYjVySkM6eVE3bUlNTWJqNjhvU1ZIWjBGSE9QUQ==';
+const ELASTICSEARCH_URL = process.env.ELASTICSEARCH_URL;
+const AUTH_HEADER = process.env.ELASTICSEARCH_APIKEY;
 
 // Helper function to make Elasticsearch requests
 async function makeESRequest(query) {
@@ -446,7 +448,7 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`🚀 Proxy server running on port ${PORT}`);

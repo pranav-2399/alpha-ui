@@ -1,14 +1,18 @@
+import {
+  currentEnv, currentServer, currentSeverity, setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentLogTypeFilter
+} from '../state/state.js';
 import { 
-    getAvailableServers, getAvailableSeverities, filterLogs, extractSeverityLevel 
+    getAvailableServers, extractSeverityLevel 
 } from '../utils/filters.js';
 import { 
     formatServerName, formatEnvironmentName, getSeverityColor 
 } from '../utils/format.js';
-import { renderLogAnalysis } from './project.js';
-import { loadAnalysisData } from './dashboard.js'; // or where it's defined
-import {
-  currentEnv, currentServer, currentSeverity, currentLogTypeFilter, setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentLogTypeFilter
-} from '../state/state.js';
+import { 
+    loadAnalysisData 
+} from './dashboard.js'; // or where it's defined
+import { 
+    renderLogAnalysis 
+} from './project.js';
 
 export function updateServerFilter(logs) {
     const serverFilter = document.getElementById('serverFilter');
@@ -84,7 +88,7 @@ export function updateEnvironmentTabs(logs, options = {}) {
     }
 }
 
-export function createTabElement(envValue, displayText, isActive, clickHandler) {
+function createTabElement(envValue, displayText, isActive, clickHandler) {
     const tab = document.createElement('button');
     tab.className = `tab-btn ${isActive ? 'active' : ''}`;
     tab.setAttribute('data-env', envValue);
@@ -98,7 +102,7 @@ export function createTabElement(envValue, displayText, isActive, clickHandler) 
     };
     return tab;
 }
-
+/* 
 export function renderSeverityBadges(severities, severityCounts) {
     const severitySection = document.getElementById('severityFilterSection');
     if (!severitySection) return;
@@ -109,9 +113,9 @@ export function renderSeverityBadges(severities, severityCounts) {
     // Get available severities
     const availableSeverities = Object.keys(severityCounts).filter(s => severityCounts[s] > 0);
     
-}
+} */
 
-export function handleEnvironmentChange(e) {
+function handleEnvironmentChange(e) {
     const env = e.target.getAttribute('data-env');
     setCurrentEnv(env || '');
     
@@ -192,7 +196,6 @@ export function clearAllFilters() {
         loadAnalysisData();
     }
 }
-window.clearAllFilters = clearAllFilters;
 
 export function updateFilterSummary(filteredCount, totalCount) {
     let summaryDiv = document.getElementById('filterSummary');
@@ -296,7 +299,7 @@ export function updateFilterSummary(filteredCount, totalCount) {
         `;
     } else {
         summaryDiv.innerHTML = `
-            <div class="filter-info" style="text-align: center;">
+            <div class="filter-info" style="text-align: center">
                 <span style="
                     font-weight: 600; 
                     color: #1976d2;
@@ -402,7 +405,7 @@ export function addSeverityStatistics(logs) {
     `;
 }
 
-export function getSeverityStatistics(logs) {
+function getSeverityStatistics(logs) {
     const stats = {
         critical: 0,
         high: 0,
@@ -422,7 +425,7 @@ export function getSeverityStatistics(logs) {
     return stats;
 }
 
-export function handleSeverityBadgeClick(severity) {
+function handleSeverityBadgeClick(severity) {
     if (currentSeverity === severity) {
         // If clicking the same severity, clear the filter
         setCurrentSeverity('');
@@ -439,9 +442,8 @@ export function handleSeverityBadgeClick(severity) {
     
     loadAnalysisData();
 }
-window.handleSeverityBadgeClick = handleSeverityBadgeClick;
 
-export function clearSeverityFilter() {
+/* export function clearSeverityFilter() {
     setCurrentSeverity('');
     const severitySelect = document.getElementById('severitySelect');
     if (severitySelect) {
@@ -449,7 +451,10 @@ export function clearSeverityFilter() {
     }
     loadAnalysisData();
 }
-window.clearSeverityFilter = clearSeverityFilter;
+window.clearSeverityFilter = clearSeverityFilter; */
+
+window.clearAllFilters = clearAllFilters;
+window.handleSeverityBadgeClick = handleSeverityBadgeClick;
 
 document.querySelectorAll('.clear-filters-btn').forEach(btn => {
     btn.addEventListener('click', clearAllFilters);
