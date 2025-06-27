@@ -66,7 +66,7 @@ export function createProjectCard(project) {
     const statusClass = project.status;
     const successRateClass = project.success_rate >= 70 ? 'success' : 
                             project.success_rate >= 50 ? 'warning' : 'error';
-    
+
     card.innerHTML = `
         <div class="project-card-header">
             <div>
@@ -284,16 +284,6 @@ export function createMetricsDashboard() {
             <div id="avgDurationCard" class="metric-card"></div>
             <div id="errorRateCard" class="metric-card"></div>
             <div id="coverageCard" class="metric-card"></div>
-        </div>
-
-        <!-- Time Granularity Controls -->
-        <div class="time-granularity-controls" style="
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            text-align: center;
-        ">
         </div>
 
         <!-- Existing Charts Grid -->

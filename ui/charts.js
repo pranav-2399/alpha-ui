@@ -851,7 +851,7 @@ export function renderMTTRChart(metrics, filteredLogs) {
     // Calculate MTTR from error logs and their resolution
     const errorLogs = filteredLogs.filter(log => {
         const severity = extractSeverityLevel(log.severity_level || log.severity);
-        return ['high', 'critical'].includes(severity);
+        return ['high', 'critical', 'medium', 'low'].includes(severity);
     });
     
     if (errorLogs.length === 0) {
@@ -865,14 +865,14 @@ export function renderMTTRChart(metrics, filteredLogs) {
     }
     
     // Group by week and calculate average MTTR
-    const weeklyMTTR = {};
+/*     const weeklyMTTR = {};
     errorLogs.forEach(log => {
         const date = new Date(log.timestamp);
         const weekStart = new Date(date.setDate(date.getDate() - date.getDay()));
         const weekKey = weekStart.toISOString().split('T')[0];
         console.log("logs for mttr", log)
         // Simulate MTTR calculation (in real scenario, you'd have resolution timestamps)
-        const mttr = log.mttr_hours || (Math.random() * 24 + 1); // 1-25 hours
+        const mttr = log.mttr_hours || (Math.random() * 5 + 1); // 1-25 hours
         
         if (!weeklyMTTR[weekKey]) {
             weeklyMTTR[weekKey] = { total: 0, count: 0 };
@@ -886,7 +886,19 @@ export function renderMTTRChart(metrics, filteredLogs) {
     );
     const data = Object.keys(weeklyMTTR).sort().map(week => 
         (weeklyMTTR[week].total / weeklyMTTR[week].count).toFixed(1)
+    ); */
+
+    const mttrData = errorLogs
+        .map(log => ({
+            timestamp: new Date(log.timestamp),
+            mttr: log.mttr_hours || (Math.random() * 5 + 1) // Simulate if not present
+        }))
+        .sort((a, b) => a.timestamp - b.timestamp);
+
+    const labels = mttrData.map(item =>
+        item.timestamp.toLocaleString('en-US', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
     );
+    const data = mttrData.map(item => item.mttr.toFixed(1));
     
     chartInstances.mttr = new Chart(ctx, {
         type: 'line',

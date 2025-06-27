@@ -28,7 +28,7 @@ export async function buildProjectStats(projectNames, analysisArr) {
             if (a.status === 'success') successCount++;
             else errorCount++;
             if (!latestTimestamp || new Date(a.timestamp) > new Date(latestTimestamp)) {
-                latestTimestamp = a.timestamp;
+                latestTimestamp = a.analysis_timestamp;
             }
         });
         const success_rate = count ? (successCount / count) * 100 : 0;
