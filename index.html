@@ -20,7 +20,15 @@
         <header class="header">
             <div class="header-content">
                 <div class="header-left">
-                    <h1 class="header-title"> Hermes <span style="font-size: 1rem; font-weight: 400; color: #90caf9; margin-left: 0.75rem; vertical-align: middle;">powered by GenAI</span></h1>
+                    <h1 class="header-title"> Hermes <span style="
+                        font-size: 1rem; 
+                        font-weight: 400; 
+                        color: #90caf9; 
+                        margin-left: 0.75rem; 
+                        vertical-align: middle;
+                    ">
+                        powered by GenAI
+                    </span></h1>
                     <nav class="breadcrumb" id="breadcrumb">
                         <span class="breadcrumb-item active">Dashboard</span>
                     </nav>
@@ -34,29 +42,92 @@
                         </svg>
                         Refresh
                     </button>
-                    <button id="alertBtn" class="alert-btn" style="position: relative; margin-left: 0.5rem;">
+                    <button id="alertBtn" class="alert-btn" style="
+                            position: relative; 
+                            margin-left: 0.5rem;
+                        ">
                         <span class="alert-icon">🚨</span>
-                        <span id="alertBadge" class="alert-badge hidden" style="position: absolute; top: -8px; right: -8px; background: #f44336; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: bold;">0</span>
+                        <span id="alertBadge" class="alert-badge hidden" style="
+                            position: absolute; 
+                            top: -8px; 
+                            right: -8px; 
+                            background: #f44336; 
+                            color: white; 
+                            border-radius: 50%; 
+                            width: 20px; 
+                            height: 20px; 
+                            font-size: 0.75rem; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            font-weight: bold;
+                        ">
+                            0
+                        </span>
                     </button>
                 </div>
             </div>
         </header>
 
         <!-- Alert Panel -->
-        <div id="alertPanel" class="alert-panel hidden" style="position: fixed; top: 60px; right: 20px; width: 400px; max-height: 500px; background: #1a1d23; border: 1px solid #343a40; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; overflow-y: auto;">
-            <div class="alert-panel-header" style="padding: 1rem; border-bottom: 1px solid #343a40; display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0; color: #ffffff;">🚨 Critical Alerts</h4>
-                <button id="closeAlertPanelBtn" style="background: none; border: none; color: #999; font-size: 1.2rem; cursor: pointer;">×</button>
+        <div id="alertPanel" class="alert-panel hidden" style="
+            position: fixed; 
+            top: 60px; 
+            right: 20px; 
+            width: 400px; 
+            max-height: 500px; 
+            background: #1a1d23; 
+            border: 1px solid #343a40; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            z-index: 1000; 
+            overflow-y: auto;
+        ">
+            <div class="alert-panel-header" style="
+                padding: 1rem; 
+                border-bottom: 1px solid #343a40; 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center;
+            ">
+                <h4 style="
+                    margin: 0; 
+                    color: #ffffff;
+                ">
+                    🚨 Critical Alerts
+                </h4>
+                <button id="closeAlertPanelBtn" style="
+                    background: none; 
+                    border: none; 
+                    color: #999; 
+                    font-size: 1.2rem; 
+                    cursor: pointer;
+                ">×</button>
             </div>
-            <div id="alertList" class="alert-list" style="padding: 1rem;">
+            <div id="alertList" class="alert-list" style="padding: 1rem">
                 <!-- Alerts will be populated here -->
             </div>
         </div>
 
         <!-- Main Content -->
         <main class="main">
-            <div class="time-filter-group" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-                  <button class="time-filter-btn active" data-range="2w" style="background: #6366f1; color: #fff; border: 1px solid #6366f1; border-radius: 12px; box-shadow: 0 4px 16px rgba(99,102,241,0.12); font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">Last 2 Weeks</button>
+            <div class="time-filter-group" style="
+                margin-bottom: 1.5rem; 
+                display: flex; 
+                gap: 0.5rem;
+            ">
+                  <button class="time-filter-btn active" data-range="2w" style="
+                    background: #6366f1; 
+                    color: #fff; 
+                    border: 1px solid #6366f1; 
+                    border-radius: 12px; 
+                    box-shadow: 0 4px 16px rgba(99,102,241,0.12); 
+                    font-weight: 500; 
+                    padding: 0.5rem 1.2rem; 
+                    font-size: 1rem;
+                    ">
+                        Last 2 Weeks
+                    </button>
                   <button class="time-filter-btn" data-range="all" style="background: #2d2d2d; color: #fff; border: 1px solid #404040; border-radius: 12px; font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">All Time</button>
                   <button class="time-filter-btn" data-range="month" style="background: #2d2d2d; color: #fff; border: 1px solid #404040; border-radius: 12px; font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">Monthly</button>
                   <button class="time-filter-btn" data-range="year" style="background: #2d2d2d; color: #fff; border: 1px solid #404040; border-radius: 12px; font-weight: 500; padding: 0.5rem 1.2rem; font-size: 1rem;">Yearly</button>
@@ -107,7 +178,12 @@
                 <div class="filters">
                     <div class="filter-group">
                         <label class="form-label">Server</label>
-                        <select class="form-control" id="serverFilter">
+                        <select class="form-control" id="serverFilter" style="
+                            padding: 4px 8px; 
+                            font-size: 0.85rem; 
+                            max-width: 200px; 
+                            margin: 0.25rem;
+                        ">
                             <option value="">All Servers</option>
                         </select>
                     </div>

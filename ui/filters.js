@@ -1,5 +1,5 @@
 import {
-  currentEnv, currentServer, currentSeverity, setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentLogTypeFilter
+  currentEnv, currentServer, currentSeverity, setCurrentEnv, setCurrentServer, setCurrentSeverity, setCurrentLogTypeFilter, getCurrentEnv, getCurrentServer, getCurrentSeverity,
 } from '../state/state.js';
 import { 
     getAvailableServers, extractSeverityLevel 
@@ -93,6 +93,29 @@ function createTabElement(envValue, displayText, isActive, clickHandler) {
     tab.className = `tab-btn ${isActive ? 'active' : ''}`;
     tab.setAttribute('data-env', envValue);
     tab.textContent = displayText;
+
+    tab.style = `
+        padding: 6px 16px;
+        font-size: 0.95rem;
+        margin: 4px;
+        border-radius: 8px;
+        background: ${isActive ? '#4f46e5' : '#374151'};
+        color: white;
+        border: none;
+        font-weight: 500;
+        transition: background 0.2s ease, transform 0.2s ease;
+    `;
+
+    tab.onmouseover = () => {
+        tab.style.background = '#6366f1';
+        tab.style.transform = 'scale(1.03)';
+    };
+
+    tab.onmouseout = () => {
+        tab.style.background = isActive ? '#4f46e5' : '#374151';
+        tab.style.transform = 'scale(1)';
+    };
+    
     tab.onclick = (event) => {
         try {
             clickHandler(event);
@@ -219,9 +242,11 @@ export function updateFilterSummary(filteredCount, totalCount) {
             analysisSection.insertBefore(summaryDiv, document.getElementById('analysisGrid'));
         }
     }
-    
+
+    console.log("check hasfilters:");
+    console.log(getCurrentEnv(), getCurrentServer(), getCurrentSeverity());
     const hasFilters = currentEnv || currentServer || currentSeverity;
-    
+/*     
     if (hasFilters) {
         const activeFilters = [];
         if (currentEnv) activeFilters.push(`<span class="filter-tag env">Environment: <strong>${currentEnv}</></span>`);
@@ -315,7 +340,71 @@ export function updateFilterSummary(filteredCount, totalCount) {
                 </p>
             </div>
         `;
-    }
+    } */
+
+    const activeFilters = [];
+    summaryDiv.innerHTML = `
+    <div class="filter-info" style="
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        flex-wrap: wrap; 
+        gap: 1rem;
+    ">
+        <div style="
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+            flex-wrap: wrap;
+        ">
+            <span style="
+                font-weight: 600; 
+                color:rgb(223, 232, 241);
+            ">
+                    Showing ${filteredCount} of ${totalCount} logs
+            </span>
+            <div class="active-filters" style="
+                display: flex; 
+                gap: 0.5rem; 
+                flex-wrap: wrap;
+            ">
+                ${activeFilters.join('')}
+            </div>
+        </div>
+        <button onclick="clearAllFilters()" class="clear-filters-btn" style="
+            padding: 0.5rem 1rem; 
+            background: #f44336; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            font-weight: 500;
+        " onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#f44336'">
+            Clear All Filters
+        </button>
+    </div>
+    <style>
+        .filter-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .filter-tag.env {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        .filter-tag.server {
+            background: #fff3e0;
+            color: #f57c00;
+            border: 1px solid #ff9800;
+        }
+    </style>
+    `;
+
 }
 
 export function addSeverityStatistics(logs) {

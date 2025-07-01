@@ -189,7 +189,14 @@ app.get('/api/logs', async (req, res) => {
         timestamp: hit._source.analysis_timestamp,
         environment: hit._source.environment,
         server: hit._source.server,
-        severity_level: hit._source.severity_level,
+        severity_level: (() => {
+          const sev = (hit._source.severity_level || '').toLowerCase();
+          if (sev.includes('critical')) return 'critical';
+          if (sev.includes('high')) return 'high';
+          if (sev.includes('medium')) return 'medium';
+          if (sev.includes('low')) return 'low';
+          return hit._source.severity_level || '';
+        })(),
         executive_summary: hit._source.executive_summary,
         llm_response: hit._source.llm_response,
         full_synthesis: hit._source.full_synthesis,

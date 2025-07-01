@@ -45,6 +45,7 @@ export async function initializeApp() {
         setAnalysisData(analysisArr);
 
         loadDashboardData();
+        
         showView('dashboard');
         document.getElementById('dashboardView').classList.remove('hidden');
     } catch (err) {
@@ -235,6 +236,7 @@ function loadDashboardData() {
 function renderDashboard() {
     updateDashboardStats();
     renderProjectCards();
+    /* updateAlertPanel(window.originalLogs); */
 }
 
 function updateDashboardStats() {
@@ -746,3 +748,75 @@ export function createLogTypeFilterPanel() {
 
 window.filterByLogType = filterByLogType;
 window.showDashboard = showDashboard;
+
+export function updateAlertPanel(logs) {
+    const alertPanel = document.getElementById('alertPanel');
+    const alertList = document.getElementById('alertList');
+    const alertBadge = document.getElementById('alertBadge');
+
+    console.log("inside updateAlertPanel");
+    console.log(logs);
+    // Filter for high/critical logs
+    const criticalLogs = logs.filter(log => {
+        if (!log.severity_level) return false;
+        const cleaned = log.severity_level.replace(/[^a-z]/g, '').toLowerCase();
+        return ['high', 'critical'].includes(cleaned);
+    });
+
+    console.log(criticalLogs);
+
+    // Update badge
+    if (criticalLogs.length > 0) {
+        alertBadge.textContent = criticalLogs.length;
+        alertBadge.classList.remove('hidden');
+    } else {
+        alertBadge.textContent = '0';
+        alertBadge.classList.add('hidden');
+    }
+
+    // Populate alert panel
+    alertList.innerHTML = '';
+    if (criticalLogs.length === 0) {
+        alertList.innerHTML = `<div style="color:#aaa;">No critical alerts 🎉</div>`;
+    } else {
+        criticalLogs.forEach(log => {
+            const div = document.createElement('div');
+            div.className = 'alert-item';
+            div.style = `
+                background: #2d2d2d;
+                color: #fff;
+                border-left: 4px solid ${log.severity_level.replace(/[^a-z]/g, '').toLowerCase() === 'critical' ? '#f44336' : '#ff9800'};
+                margin-bottom: 0.75rem;
+                padding: 0.75rem 1rem;
+                border-radius: 6px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            `;
+            div.innerHTML = `
+                <div style="font-weight: 600">
+                    [${log.severity_level.replace(/[^a-z]/g, '').toUpperCase()}] ${
+                        log.executive_summary
+                            ? log.executive_summary.split('\n')[0].replace(/^\*+\s*/, '')
+                            : log.message || log.summary || 'No message'
+                    }
+                </div>
+                <div style="
+                    font-size: 0.9em; 
+                    color:#bbb;
+                ">
+                    ${log.project ? `Project: ${log.project}<br>` : ''}
+                    ${log.tool ? `Tool: ${log.tool}<br>` : ''}
+                    ${log.timestamp ? new Date(log.timestamp).toLocaleString() : ''}
+                    ${log.server ? ' | ' + log.server : ''}
+                </div>
+            `;
+            alertList.appendChild(div);
+        });
+    }
+}
+
+document.getElementById('alertBtn').onclick = () => {
+    document.getElementById('alertPanel').classList.toggle('hidden');
+};
+document.getElementById('closeAlertPanelBtn').onclick = () => {
+    document.getElementById('alertPanel').classList.add('hidden');
+};

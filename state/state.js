@@ -29,3 +29,8 @@ export function setCurrentSeverity(sev) { currentSeverity = sev; }
 export function setCurrentTool(t) { currentTool = t; }
 export function setCurrentTimeFilter(f) { currentTimeFilter = f; }
 export function setCurrentTimeGranularity(g) { currentTimeGranularity = g; }
+
+
+export function getCurrentEnv() { return currentEnv; }
+export function getCurrentServer() { return currentServer; }
+export function getCurrentSeverity() { return currentSeverity; }

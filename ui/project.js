@@ -14,7 +14,7 @@ import {
     renderMetricsCharts 
 } from './charts.js';
 import { 
-    showView, createLogTypeFilterPanel, countLogsByType, createMetricsDashboard, updateLogTypeFilterCounts
+    showView, createLogTypeFilterPanel, countLogsByType, createMetricsDashboard, updateLogTypeFilterCounts, updateAlertPanel
 } from './dashboard.js';
 import {
     updateEnvironmentTabs, updateServerFilter, addSeverityStatistics, updateFilterSummary
@@ -68,6 +68,28 @@ export async function fetchLogsForProject(project, tool) {
         // Update filter options based on available data
         updateEnvironmentTabs(logs);
         updateServerFilter(logs);
+
+        // Step 1: Dynamically create the shared wrapper
+        let wrapper = document.getElementById('filterStatsWrapper');
+        if (!wrapper) {
+            wrapper = document.createElement('div');
+            wrapper.id = 'filterStatsWrapper';
+            wrapper.className = 'filter-stats-wrapper';
+            wrapper.style = `
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+                margin-bottom: 1rem;
+                justify-content: space-between;
+            `;
+
+            const analysisSection = document.querySelector('.analysis-section');
+            const analysisGrid = document.getElementById('analysisGrid');
+            if (analysisSection && analysisGrid) {
+                analysisSection.insertBefore(wrapper, analysisGrid);
+            }
+        }
+
         addSeverityStatistics(logs);
         
         // Create and insert log type filter panel
@@ -89,6 +111,7 @@ export async function fetchLogsForProject(project, tool) {
         
         // Render the filtered logs
         renderLogAnalysis(logs);
+        updateAlertPanel(logs);
         
     } catch (error) {
         console.error('Error fetching logs:', error);
