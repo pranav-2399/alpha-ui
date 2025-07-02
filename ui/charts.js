@@ -805,7 +805,7 @@ function renderCodeQualityChart(metrics, filteredLogs) {
     });
 }
 
-function renderDeploymentFrequencyChart(metrics, filteredLogs) {
+/* function renderDeploymentFrequencyChart(metrics, filteredLogs) {
     const ctx = document.getElementById('deploymentFrequencyChart');
     if (!ctx) return;
     
@@ -877,6 +877,86 @@ function renderDeploymentFrequencyChart(metrics, filteredLogs) {
             }
         }
     });
+} */
+
+function renderDeploymentFrequencyChart(metrics, filteredLogs) {
+    const ctx = document.getElementById('deploymentFrequencyChart');
+    if (!ctx) return;
+    
+    if (chartInstances.deploymentFrequency) {
+        chartInstances.deploymentFrequency.destroy();
+        chartInstances.deploymentFrequency = null;
+    }
+    
+    // Filter for deployment logs only
+    const deploymentLogs = filteredLogs.filter(log => getLogType(log) === 'deployment');
+    
+    if (deploymentLogs.length === 0) {
+        ctx.parentElement.innerHTML = `
+            <div style="
+                text-align: center; 
+                padding: 2rem; 
+                color: #a0aec0;
+            ">
+                <h4>No Deployment Data</h4>
+                <p>No deployment logs found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Group deployments by hour (date + hour)
+    const hourlyDeployments = {};
+    deploymentLogs.forEach(log => {
+        const d = new Date(log.timestamp);
+        if (isNaN(d.getTime())) return;
+        const hourKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:00`;
+        hourlyDeployments[hourKey] = (hourlyDeployments[hourKey] || 0) + 1;
+    });
+
+    const sortedHourKeys = Object.keys(hourlyDeployments).sort();
+    const labels = sortedHourKeys.map(hourKey => {
+        // Format as "MM/DD HH:00"
+        const [datePart, timePart] = hourKey.split(' ');
+        const date = new Date(`${datePart}T${timePart}:00`);
+        return `${date.toLocaleDateString('en-US')} ${timePart}`;
+    });
+    const data = sortedHourKeys.map(hourKey => hourlyDeployments[hourKey]);
+    
+    chartInstances.deploymentFrequency = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Deployments per Hour',
+                data: data,
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderColor: '#10b981',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#e2e8f0' } }
+            },
+            scales: {
+                x: { 
+                    ticks: { color: '#a0aec0', maxTicksLimit: 12 }, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    title: { display: true, text: 'Timeline', color: '#e2e8f0' }
+                },
+                y: { 
+                    ticks: { color: '#a0aec0' }, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    title: { display: true, text: 'Deployment Count', color: '#e2e8f0' },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 }
 
 function renderMTTRChart(metrics, filteredLogs) {
@@ -935,7 +1015,7 @@ function renderMTTRChart(metrics, filteredLogs) {
     const mttrData = errorLogs
         .map(log => ({
             timestamp: new Date(log.timestamp),
-            mttr: log.mttr_hours || (Math.random() * 5 + 1) // Simulate if not present
+            mttr: log.mttr_hours || (Math.random() * 3 + 1) // Simulate if not present
         }))
         .sort((a, b) => a.timestamp - b.timestamp);
 
@@ -985,7 +1065,7 @@ function renderMTTRChart(metrics, filteredLogs) {
     });
 }
 
-function renderSeverityTimelineChart(metrics, filteredLogs) {
+/* function renderSeverityTimelineChart(metrics, filteredLogs) {
     const ctx = document.getElementById('severityTimelineChart');
     if (!ctx) return;
     
@@ -1056,6 +1136,98 @@ function renderSeverityTimelineChart(metrics, filteredLogs) {
                     ticks: { color: '#a0aec0' }, 
                     grid: { color: 'rgba(255,255,255,0.1)' },
                     title: { display: true, text: 'Date', color: '#e2e8f0' },
+                    stacked: true
+                },
+                y: { 
+                    ticks: { color: '#a0aec0' }, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    title: { display: true, text: 'Log Count', color: '#e2e8f0' },
+                    beginAtZero: true,
+                    stacked: true
+                }
+            }
+        }
+    });
+} */
+
+function renderSeverityTimelineChart(metrics, filteredLogs) {
+    const ctx = document.getElementById('severityTimelineChart');
+    if (!ctx) return;
+    
+    if (chartInstances.severityTimeline) {
+        chartInstances.severityTimeline.destroy();
+        chartInstances.severityTimeline = null;
+    }
+    
+    // Group logs by full timestamp (date + time, rounded to hour)
+    const hourlySeverity = {};
+    filteredLogs.forEach(log => {
+        // Group by hour for better time granularity
+        const d = new Date(log.timestamp);
+        if (isNaN(d.getTime())) return;
+        const hourKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:00`;
+        const severity = extractSeverityLevel(log.severity_level || log.severity);
+        
+        if (!hourlySeverity[hourKey]) {
+            hourlySeverity[hourKey] = { critical: 0, high: 0, medium: 0, low: 0 };
+        }
+        hourlySeverity[hourKey][severity] = (hourlySeverity[hourKey][severity] || 0) + 1;
+    });
+    
+    const sortedHourKeys = Object.keys(hourlySeverity).sort();
+    const labels = sortedHourKeys.map(hourKey => {
+        // Format as "MM/DD HH:00"
+        const [datePart, timePart] = hourKey.split(' ');
+        const date = new Date(`${datePart}T${timePart}:00`);
+        return `${date.toLocaleDateString('en-US')} ${timePart}`;
+    });
+
+    chartInstances.severityTimeline = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Critical',
+                    data: sortedHourKeys.map(hourKey => hourlySeverity[hourKey].critical),
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1
+                },
+                {
+                    label: 'High',
+                    data: sortedHourKeys.map(hourKey => hourlySeverity[hourKey].high),
+                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                    borderColor: '#f59e0b',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Medium',
+                    data: sortedHourKeys.map(hourKey => hourlySeverity[hourKey].medium),
+                    backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                    borderColor: '#ffc107',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Low',
+                    data: sortedHourKeys.map(hourKey => hourlySeverity[hourKey].low),
+                    backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                    borderColor: '#28a745',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#e2e8f0' } }
+            },
+            scales: {
+                x: { 
+                    ticks: { color: '#a0aec0', maxTicksLimit: 12 },
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    title: { display: true, text: 'Timeline', color: '#e2e8f0' },
                     stacked: true
                 },
                 y: { 

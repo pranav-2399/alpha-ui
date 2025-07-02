@@ -777,7 +777,7 @@ export function updateAlertPanel(logs) {
     // Populate alert panel
     alertList.innerHTML = '';
     if (criticalLogs.length === 0) {
-        alertList.innerHTML = `<div style="color:#aaa;">No critical alerts 🎉</div>`;
+        alertList.innerHTML = `<div style="color:#aaa">No critical alerts 🎉</div>`;
     } else {
         criticalLogs.forEach(log => {
             const div = document.createElement('div');
